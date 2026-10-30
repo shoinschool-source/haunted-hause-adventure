@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Rescue Benji">
+    
+    <title>Rescue Benji: Haunted House</title>
+    <style>
+        * { box-sizing: border-box; }
+        
+        html, body {
+            width: 100%;
+            height: 100dvh; 
+            margin: 0; 
+            padding: 0;
+            background: #141110; 
+            color: #fef3c7; 
+            font-family: monospace; 
+            overflow: hidden;
+        }
+
+        body { 
+            display: flex; 
+            flex-direction: column;
+            padding: 8px 10px 10px 10px; 
+            height: 100dvh;
+        }
+        
+        /* --- Admin Panel Styles --- */
+        #admin-panel {
+            text-align: center; 
+            max-width: 400px; 
+            margin: 40px auto; 
+            background: #0d0a09; 
+            border: 2px solid #b45309; 
+            padding: 30px;
+            width: 100%;
+            user-select: auto;
+        }
+        #admin-panel input {
+            background: #000; 
+            border: 1px solid #78350f; 
+            color: #fef3c7; 
+            padding: 10px; 
+            font-family: monospace; 
+            font-size: 16px; 
+            width: 60%; 
+            margin: 10px 0 20px 0; 
+            text-align: center;
+        }
+        #admin-panel button {
+            background: #b45309; 
+            color: #fff; 
+            border: none; 
+            padding: 12px 24px; 
+            font-size: 16px; 
+            cursor: pointer; 
+            font-family: monospace;
+            font-weight: bold;
+        }
+        #admin-panel button:hover { background: #d97706; }
+        #qr-code { border: 5px solid #fff; margin-top: 15px; max-width: 100%; height: auto; }
+        
+        /* --- Game Panel Container --- */
+        #game-panel {
+            display: none; 
+            flex-direction: column; 
+            height: 100%;
+            max-height: 100%;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            user-select: none;
+            overflow: hidden;
+        }
+
+        /* --- Next Room Popup --- */
+        #next-room-popup {
+            position: fixed;
+            top: 20%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: rgba(20, 17, 16, 0.95);
+            color: #fbbf24;
+            border: 2px solid #fbbf24;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            cursor: pointer;
+        }
+
+        #next-room-popup.show {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        /* --- Game Clear Overlay --- */
+        #game-clear-overlay {
+            display: none; position: absolute; inset: 0; z-index: 50; 
+            flex-direction: column; align-items: center; justify-content: center; 
+            background: rgba(20, 17, 16, 0.98);
+            padding: 20px;
+        }
+        #clear-image {
+            width: 90%;
+            max-width: 450px;
+            height: 180px;
+            object-fit: fill;
+            border: 2px solid #b45309;
+            box-shadow: 0 0 20px rgba(180, 83, 9, 0.5);
+            margin-bottom: 20px;
+        }
+        #game-clear-overlay h1 {
+            font-size: 3.5rem; color: #fbbf24; text-shadow: 0 0 15px rgba(251,191,36,0.8); 
+            font-family: serif; letter-spacing: 0.1em; margin: 0 0 10px 0; text-align: center;
+        }
+        #game-clear-overlay p {
+            color: #fef3c7; font-size: 1.25rem; font-family: monospace; text-align: center; margin: 0;
+        }
+
+        /* --- HINT & MAP POPUP MODAL STYLES --- */
+        #hint-modal, #map-modal {
+            display: none; 
+            position: absolute; 
+            inset: 0; 
+            z-index: 60; 
+            align-items: center; 
+            justify-content: center; 
+            background: rgba(0, 0, 0, 0.85);
+            padding: 20px;
+        }
+        #hint-box, #map-box {
+            position: relative;
+            background: #1e1915;
+            border: 2px solid #b45309;
+            box-shadow: 0 0 15px rgba(180, 83, 9, 0.6);
+            padding: 25px 20px 20px 20px;
+            width: 95%;
+            max-width: 420px;
+            text-align: center;
+            border-radius: 6px;
+        }
+        .close-btn {
+            position: absolute;
+            top: 6px;
+            right: 10px;
+            background: transparent;
+            border: none;
+            color: #ef4444;
+            font-size: 22px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+            padding: 4px;
+        }
+        #hint-title, #map-title {
+            color: #fbbf24;
+            margin: 0 0 15px 0;
+            font-size: 18px;
+            border-bottom: 1px solid #78350f;
+            padding-bottom: 6px;
+        }
+        #hint-text {
+            color: #fef3c7;
+            font-size: 15px;
+            line-height: 1.5;
+            margin: 0;
+        }
+        
+        /* --- TOP SECTION --- */
+        #status-bar { 
+            padding: 6px 8px; 
+            border-bottom: 2px solid #78350f; 
+            margin-bottom: 6px;
+            display: flex; 
+            flex-direction: column;
+            gap: 6px; 
+            width: 100%; 
+            font-size: 14px; 
+            flex-shrink: 0;
+        }
+        .status-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+        #timer {
+            font-size: 16px; font-weight: bold;
+        }
+        
+        /* Interactive Inventory Container */
+        #inventory-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            min-height: 32px;
+            align-items: center;
+        }
+        .inventory-item {
+            padding: 4px 8px;
+            background: #261e19;
+            border: 1px solid #78350f;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.1s;
+        }
+        .inventory-item:active {
+            transform: scale(0.95);
+        }
+        .inventory-item.selected {
+            border-color: #fbbf24;
+            background: #b45309;
+            color: #fff !important;
+            box-shadow: 0 0 8px rgba(251, 191, 36, 0.5);
+        }
+        
+        #image-container { 
+            height: 32vh; 
+            max-height: 320px;
+            width: 100%; 
+            margin-bottom: 0px;
+            background: #000; border: 2px solid #b45309; display: flex; 
+            align-items: center; justify-content: center; overflow: hidden; 
+            flex-shrink: 0;
+            border-bottom: none;
+        }
+        #scene-image { 
+            width: 100%; height: 100%; 
+            object-fit: fill; 
+            object-position: center; 
+        }
+
+        /* --- NAVIGATION ROW --- */
+        #nav-row {
+            display: flex;
+            gap: 6px;
+            padding: 6px 8px;
+            background: #0d0a09;
+            border: 2px solid #b45309;
+            border-top: 1px solid #78350f;
+            overflow-x: auto;
+            flex-shrink: 0;
+            justify-content: center;
+            margin-bottom: 6px;
+        }
+        .nav-btn {
+            background: #1e1915;
+            color: #6b7280;
+            border: 1px solid #3b281c;
+            padding: 6px 14px;
+            font-family: monospace;
+            font-size: 13px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: not-allowed;
+            white-space: nowrap;
+        }
+        .nav-btn.active-path {
+            color: #fbbf24;
+            border-color: #fbbf24;
+            background: #3b281c;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+        .nav-btn.active-path:active {
+            background: #b45309;
+            color: #fff;
+            transform: scale(0.95);
+        }
+
+        /* --- MIDDLE SECTION --- */
+        #game-log { 
+            flex: 1 1 auto; 
+            height: 0;
+            min-height: 0; 
+            overflow-y: auto; 
+            padding: 10px 12px; 
+            background: #000; 
+            border: 1px solid #78350f; 
+            margin-bottom: 6px;
+            width: 100%; 
+            font-size: 15px;
+            line-height: 1.6;
+        }
+        
+        /* Inline Dialogue Pill Buttons */
+        .inline-item-btn {
+            background: #b45309;
+            color: #fff;
+            border: 1px solid #fbbf24;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-family: monospace;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            vertical-align: middle;
+            margin: 0 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            transition: transform 0.1s, background 0.1s;
+        }
+        .inline-item-btn:active {
+            transform: scale(0.92);
+            background: #d97706;
+        }
+
+        /* --- BOTTOM SECTION (NEW UI) --- */
+        #action-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            width: 100%;
+            flex-shrink: 0;
+            padding-bottom: 4px;
+        }
+        
+        .button-row {
+            display: flex;
+            gap: 6px;
+            width: 100%;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .action-verb {
+            flex: 1;
+            min-width: 75px;
+            background: #1e1915;
+            color: #fbbf24;
+            border: 2px solid #78350f;
+            padding: 10px 4px;
+            font-family: monospace;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.1s;
+        }
+        .action-verb:active { background: #3b281c; }
+        .action-verb.selected {
+            background: #78350f;
+            border-color: #fbbf24;
+            color: #fff;
+        }
+        
+        /* Secondary targets (Rooms or Room Items) */
+        #target-row {
+            min-height: 44px; /* Maintain height even when empty */
+            background: #0d0a09;
+            border: 1px solid #3b281c;
+            padding: 4px;
+            border-radius: 4px;
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .target-noun {
+            background: #261e19;
+            color: #fef3c7;
+            border: 1px solid #b45309;
+            padding: 8px 12px;
+            font-family: monospace;
+            font-size: 14px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .target-noun:active { background: #b45309; color: #fff; }
+
+        .danger { color: #ef4444; font-weight: bold; }
+        
+        /* Utility button row for Hint/Map */
+        .utility-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 4px;
+            padding-top: 4px;
+            border-top: 1px dashed #78350f;
+        }
+        .utility-btn {
+            flex: 1;
+            background: #b45309;
+            color: #fef3c7;
+            border: 2px solid #fbbf24;
+            padding: 10px 16px;
+            font-family: monospace;
+            font-size: 15px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(180, 83, 9, 0.6);
+            transition: all 0.1s;
+        }
+        .utility-btn:active {
+            background: #d97706;
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ================= ADMIN PANEL ================= -->
+    <div id="admin-panel">
+        <h2>Haunted House Setup</h2>
+        <label>Set Timer (Minutes):</label><br>
+        <input type="number" id="game-time" value="10" min="1" max="60"><br>
+        <button type="button" onclick="generateQR()">Generate QR Code</button>
+
+        <div style="margin-top: 20px;">
+            <p style="font-size: 13px; color: #fbbf24; margin-bottom: 6px;">Background Soundtrack:</p>
+            <audio controls loop style="width: 100%; max-width: 280px; accent-color: #b45309; pointer-events: auto; position: relative; z-index: 10;">
+                <source src="soundtrack.mp3" type="audio/mpeg">
+                Your browser does not support the audio element.
+            </audio>
+        </div>
+
+        <div id="qr-result" style="display: none; margin-top: 20px;">
+            <p>Players scan this to start (<span id="time-display"></span> min):</p>
+            <img id="qr-code" src="" alt="QR Code"><br><br>
+            
+            <!-- 追加: ダイレクトURLリンクを表示するコンテナ -->
+            <div id="url-link-container" style="margin-top: 15px; word-break: break-all;"></div>
+            
+            <p style="font-size: 12px; color: #6b7280; margin-top: 10px;">Waiting for players to scan...</p>
+        </div>
+    </div>
+
+    <!-- ================= GAME PANEL ================= -->
+    <div id="game-panel">
+
+        <!-- Preloaded Assets Matrix -->
+        <div id="image-cache" style="display: none; position: absolute; width: 0; height: 0; overflow: hidden; visibility: hidden;">
+            <img src="assets/intro_1.webp" alt="Intro 1">
+            <img src="assets/intro_2.webp" alt="Intro 2">
+            <img src="assets/intro_3.webp" alt="Intro 3">
+            <img src="assets/porch.webp" alt="Porch">
+            <img src="assets/window_broken.webp" alt="Broken Window">
+            <img src="assets/foyer.webp" alt="Foyer">
+            <img src="assets/kitchen.webp" alt="Kitchen">
+            <img src="assets/bedroom.webp" alt="Bedroom">
+            <img src="assets/library_ghost.webp" alt="Ghost">
+            <img src="assets/library_clear.webp" alt="Library">
+            <img src="assets/cellar_dark.webp" alt="Dark">
+            <img src="assets/cellar_lit.webp" alt="Cellar Lit">
+            <img src="assets/cellar_open.webp" alt="Secret Door">
+            <img src="assets/garden.webp" alt="Garden">
+            <img src="assets/garden_chase.webp" alt="Garden Chase">
+            <img src="assets/vampire.webp" alt="Vampire">
+            <img src="assets/win.webp" alt="Win">
+        </div>
+        
+        <!-- Game Clear Overlay -->
+        <div id="game-clear-overlay">
+            <img id="clear-image" src="assets/win.webp" alt="Escape">
+            <h1>GAME CLEAR!</h1>
+            <p>You and Benji are safe!</p>
+        </div>
+
+        <!-- Hint Popup Modal -->
+        <div id="hint-modal">
+            <div id="hint-box">
+                <button type="button" class="close-btn" onclick="closeHint()">✖</button>
+                <h3 id="hint-title">💡 ヒント (Hint)</h3>
+                <p id="hint-text">ここにヒントが表示されます。</p>
+            </div>
+        </div>
+
+        <!-- Map Popup Modal -->
+        <div id="map-modal">
+            <div id="map-box">
+                <button type="button" class="close-btn" onclick="closeMap()">✖</button>
+                <h3 id="map-title">🗺 MAP</h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; font-size: 13px; font-weight: bold; margin-bottom: 15px;">
+                    <div id="map-r2" style="border: 1px solid #78350f; padding: 12px 2px; background: #000; color: #6b7280;">Kitchen</div>
+                    <div id="map-r3" style="border: 1px solid #78350f; padding: 12px 2px; background: #000; color: #6b7280;">Bedroom</div>
+                    <div id="map-r4" style="border: 1px solid #78350f; padding: 12px 2px; background: #000; color: #6b7280;">Library</div>
+                    <div id="map-r5" style="border: 1px solid #78350f; padding: 12px 2px; background: #000; color: #6b7280;">Cellar</div>
+                    
+                    <div style="grid-column: span 4; color: #b45309; font-size: 10px;">▲ Hall Connects Everywhere ▲</div>
+                    
+                    <div id="map-r1" style="grid-column: span 3; border: 1px solid #78350f; padding: 12px 4px; background: #000; color: #6b7280;">Hall (Foyer)</div>
+                    <div id="map-r6" style="border: 1px dashed #78350f; padding: 12px 2px; background: #110; color: #6b7280;">Garden</div>
+
+                    <div style="grid-column: span 4; color: #b45309; font-size: 10px;">▲ Front Door ▲</div>
+                    
+                    <div id="map-r0" style="grid-column: span 4; border: 1px solid #78350f; padding: 10px 4px; background: #000; color: #6b7280;">Porch (Start)</div>
+                </div>
+                
+                <p style="color: #fef3c7; font-size: 11px; margin: 0;"><span style="color: #fbbf24;">★ 現在地</span> で現在いる場所が表示されます。</p>
+            </div>
+        </div>
+
+        <!-- STATUS BAR w/ INTERACTIVE INVENTORY -->
+        <div id="status-bar">
+            <div class="status-row">
+                <span id="timer">タイマー: 10:00</span>
+                <span style="font-size: 12px; color: #6b7280;">アイテムをタップして選択</span>
+            </div>
+            <div id="inventory-container">
+                <!-- Inventory items render here -->
+            </div>
+        </div>
+        
+        <!-- ENLARGED IMAGE CONTAINER -->
+        <div id="image-container">
+            <img id="scene-image" src="" alt="Room Scene">
+        </div>
+        
+        <!-- DEDICATED NAVIGATION ROW -->
+        <div id="nav-row">
+            <!-- Room buttons render here automatically -->
+        </div>
+
+        <div id="game-log"></div>
+        
+        <!-- ACTION PANEL -->
+        <div id="action-panel">
+            <div class="button-row" id="verb-row">
+                <button class="action-verb" onclick="executeCommand('look')">Look</button>
+                <button class="action-verb toggle-verb" data-verb="use">Use</button>
+                <button class="action-verb toggle-verb" data-verb="throw">Throw</button>
+            </div>
+            
+            <div id="target-row">
+                <span style="color: #6b7280; font-size: 12px;">Select an item from above to Use or Throw.</span>
+            </div>
+            
+            <div class="utility-row">
+                <button type="button" class="utility-btn" onclick="showHint()">[ Hint ]</button>
+                <button type="button" class="utility-btn" onclick="showMap()">[ Map ]</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="game.js"></script>
+
+    <script>
+        // Ensure background music attempts to play upon user interaction if blocked
+        document.addEventListener('DOMContentLoaded', () => {
+            const audioEl = document.querySelector('audio');
+            if (audioEl) {
+                audioEl.play().catch(() => {
+                    // Autoplay was prevented by browser policy; play on first click
+                    const startAudio = () => {
+                        audioEl.play();
+                        document.removeEventListener('click', startAudio);
+                    };
+                    document.addEventListener('click', startAudio);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
