@@ -209,15 +209,15 @@ function renderTutorialOverlay() {
 
     if (state.tutorialStep === 1) {
         title = "【チュートリアル 1/5：観察する（LOOK AT）】";
-        desc = "「LOOK AT」アクションは、部屋のオブジェクトや人物を調べてパズルのヒントを得るために使います。<br><br>上のテキスト内の黄色い文字「<span style='color:#fbbf24'>window</span>」を選択し、「Look at」アクションを選んでから「CONFIRM: LOOK AT WINDOW」ボタンを押して窓を調べてみましょう。";
+        desc = "「LOOK AT」アクションは、部屋のオブジェクトや人物を調べてパズルのヒントを得るために使います。<br><br>「Look at」アクションを選んでから上のテキスト内の黄色い文字「<span style='color:#fbbf24'>window</span>」を選択し、「CONFIRM: LOOK AT WINDOW」ボタンを押して窓を調べてみましょう。";
         btnHtml = `<button onclick="closeTutorialOverlay()" style="background: #b45309; color: #fff; border: 1px solid #fbbf24; padding: 10px 24px; font-weight: bold; cursor: pointer; border-radius: 4px; font-family: monospace;">閉じる (Close)</button>`;
     } else if (state.tutorialStep === 2) {
         title = "【チュートリアル 2/5：拾う（PICK UP）】";
-        desc = "「PICK UP」アクションは、パズルを解くためのアイテムをインベントリ（持ち物）に追加するために使います。<br><br>テキスト内の「<span style='color:#fbbf24'>rock</span>」を選択し、「Pick Up」アクションを選んでから「CONFIRM: PICK UP ROCK」を押して石を拾いましょう。";
+        desc = "「PICK UP」アクションは、パズルを解くためのアイテムをインベントリ（持ち物）に追加するために使います。<br><br>「Pick Up」アクションを選んでからテキスト内の「<span style='color:#fbbf24'>rock</span>」を選択し、「CONFIRM: PICK UP ROCK」を押して石を拾いましょう。";
         btnHtml = `<button onclick="closeTutorialOverlay()" style="background: #b45309; color: #fff; border: 1px solid #fbbf24; padding: 10px 24px; font-weight: bold; cursor: pointer; border-radius: 4px; font-family: monospace;">閉じる (Close)</button>`;
     } else if (state.tutorialStep === 3) {
         title = "【チュートリアル 3/5：使う・投げる（USE / THROW）】";
-        desc = "「USE（使う）」や「THROW（投げる）」アクションは、インベントリのアイテムと組み合わせてパズルを解くために使います。<br><br>インベントリに追加された「rock」を選択し、「Throw」アクションを選んでから「CONFIRM: THROW ROCK」を押し、窓を割って中に入りましょう！";
+        desc = "「USE（使う）」や「THROW（投げる）」アクションは、インベントリのアイテムと組み合わせてパズルを解くために使います。<br><br>「Throw」アクションを選んでからインベントリに追加された「rock」を選択し、「CONFIRM: THROW ROCK」を押し、窓を割って中に入りましょう！";
         btnHtml = `<button onclick="closeTutorialOverlay()" style="background: #b45309; color: #fff; border: 1px solid #fbbf24; padding: 10px 24px; font-weight: bold; cursor: pointer; border-radius: 4px; font-family: monospace;">閉じる (Close)</button>`;
     } else if (state.tutorialStep === 4) {
         title = "【チュートリアル 4/5：部屋の移動（GO TO）】";
