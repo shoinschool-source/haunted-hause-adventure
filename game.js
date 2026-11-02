@@ -636,7 +636,7 @@ window.executeCommand = function(rawCmd, forcedTargetRoom = -1) {
         }
     }
     else {
-        printLog(""そんなことはできない。"");
+        printLog("そんなことはできない。");
     }
 
     syncLogHighlights();
