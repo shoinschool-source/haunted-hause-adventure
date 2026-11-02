@@ -416,7 +416,13 @@ window.executeCommand = function(rawCmd, forcedTargetRoom = -1) {
 
     if (cmd === "use iron key" || cmd === "use silver key") cmd = "use key";
     if (cmd === "use salt") cmd = "throw salt"; 
-
+  
+    // Default any command on the key in the hall to the Japanese hint
+    if (state.room === 1 && !state.flags.isIronKeyFallen && (cmd.endsWith(" key") || cmd === "key")) {
+        printLog('<span style="color: #fbbf24; font-style: italic;">💡 鍵を調べた：「絵画の上にあって手が届かない。何か長い道具が必要だ……」</span>');
+        updateStatus();
+        return;
+    }
     if (cmd.startsWith("look at ")) {
         let obj = cmd.replace("look at ", "").trim();
         const hints = {
@@ -449,12 +455,7 @@ window.executeCommand = function(rawCmd, forcedTargetRoom = -1) {
         return;
     }
 
-    // Default any command on the key in the hall to the Japanese hint
-    if (state.room === 1 && !state.flags.isIronKeyFallen && (cmd.endsWith(" key") || cmd === "key")) {
-        printLog('<span style="color: #fbbf24; font-style: italic;">💡 鍵を調べた：「絵画の上にあって手が届かない。何か長い道具が必要だ……」</span>');
-        updateStatus();
-        return;
-    }
+  
 
     if (state.flags.isVampireChasing) {
         if ((cmd === "use key" || cmd === "use iron") && (state.inventory.includes("iron key") || state.inventory.includes("key"))) {
