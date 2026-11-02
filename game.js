@@ -435,7 +435,7 @@ window.executeCommand = function(rawCmd, forcedTargetRoom = -1) {
         if (hints[obj]) {
             printLog(`<span style="color: #fbbf24; font-style: italic;">💡 You look at the ${obj}: "${hints[obj]}"</span>`);
         } else {
-            printLog("You see nothing special about that.");
+            printLog("それには特に何もない。");
         }
         
         if (obj === "window" && state.tutorialStep === 1) {
@@ -528,7 +528,7 @@ window.executeCommand = function(rawCmd, forcedTargetRoom = -1) {
                 }, 800);
             }
         } else {
-            printLog("You cannot pick that up here.");
+            printLog("それは拾えない。");
         }
         updateStatus();
         return;
@@ -599,9 +599,9 @@ window.executeCommand = function(rawCmd, forcedTargetRoom = -1) {
             }, 1800);
             return; 
         } else if (cmd.includes("throw")) {
-            printLog("Throwing that here won't help you.");
+            printLog("ここでそんなことを言っても、何の役にも立たないよ。");
         } else {
-            printLog("That doesn't seem to work here.");
+            printLog("そんなことできない。");
         }
     }
     else if (state.room === 4) {
@@ -613,9 +613,9 @@ window.executeCommand = function(rawCmd, forcedTargetRoom = -1) {
         } else if (cmd.includes("ghost") && !state.flags.isGhostGone) {
             printLog("<span class='danger'>The ghost blocks your way! You cannot pass. You need something to scare it.</span>");
         } else if (cmd.includes("throw")) {
-            printLog("Throwing that won't work on the ghost.");
+            printLog("それを投げても、幽霊には効かない。");
         } else {
-            printLog("That doesn't seem to work here.");
+            printLog("そんなことできない。");
         }
     }
     else if (state.room === 5) {
@@ -632,11 +632,11 @@ window.executeCommand = function(rawCmd, forcedTargetRoom = -1) {
                 printLog("<span class='danger'>The cage is locked. Benji is crying. You need a key.</span>");
             }
         } else {
-            printLog("That doesn't seem to work here.");
+            printLog("そんなことはできない。");
         }
     }
     else {
-        printLog("You cannot do that here.");
+        printLog(""そんなことはできない。"");
     }
 
     syncLogHighlights();
